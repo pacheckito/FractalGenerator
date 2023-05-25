@@ -1,6 +1,10 @@
 // Global variable to store the selected fractal name
+var isGenerating = false;
 let selectedFractal = "";
+let intervalID;
+
 generateButton.addEventListener("click", generateFractal);
+
 
 // Function to update the Generate button and selected fractal
 function updateGenerateButton(fractalName) {
@@ -10,9 +14,10 @@ function updateGenerateButton(fractalName) {
 }
 
 function clearBoard() {
-  var canvas = document.getElementById("canvas");
-  var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  clearInterval(intervalID);
+  intervalID = null;
+  isGenerating = false;
+  location.reload(); // Refresh the page
 }
 
 var clearButton = document.getElementById("clearButton");
@@ -45,6 +50,7 @@ function generateFractal() {
       break;
   }
 }
+
 function generateMandelbrotSet() {
   function Complex(re, im) {
     this.re = re;
@@ -122,6 +128,7 @@ function generateMandelbrotSet() {
     }
   }, 1000);
 }
+
 function generateBarnsleyFern() {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
@@ -184,6 +191,7 @@ function generateBarnsleyFern() {
   // Start generating the fractal
   generateNextPoint();
 }
+
 function generateJuliaSet() {
   function Complex(re, im) {
     this.re = re;
@@ -254,10 +262,10 @@ function generateJuliaSet() {
         var x = (re - minRe) / reStep,
           y = (im - minIm) / imStep;
         if (result == maxIterations) {
-          pixel(x, y, "green");
+          pixel(x, y, "black");
         } else {
          //  var color = getRandomColor();
-          pixel(x, y, "black");
+          pixel(x, y, "white");
         }
         im += imStep;
       }
@@ -277,6 +285,48 @@ function generateJuliaSet() {
     }
   }, 1000);
 }
-function generateDragonCurve() {
 
+function generateDragonCurve() {
+  if (isGenerating) return;
+
+  var c = document.getElementById("canvas");
+  c.width = 1024;
+  c.height = 768;
+  var ctx = c.getContext("2d");
+  var i = 0;
+  var steps = 17;
+  var colorRate = 8;
+
+  function drawDragon(x1, y1, x2, y2, step) {
+    if (step--) {
+      var dx = x2 - x1,
+        dy = y2 - y1;
+
+      var midX = x1 + (dx - dy) / 2,
+        midY = y1 + (dx + dy) / 2;
+
+      drawDragon(midX, midY, x1, y1, step);
+      drawDragon(midX, midY, x2, y2, step);
+
+      var r = (i >> (colorRate - 3)) & 255;
+      var g = (i >> (colorRate + 0)) & 255;
+      var b = (i >> (colorRate - 1)) & 255;
+
+      setTimeout(function () {
+        ctx.fillStyle = "rgb(" + r + ", " + g + "," + b + ")";
+        ctx.fillRect(midX, midY, 1.5, 1.5);
+        i++;
+      }, 50); // Adjust the delay (in milliseconds) between iterations here
+    } else {
+      isGenerating = false;
+    }
+  }
+  isGenerating = true;
+  drawDragon(
+    (c.width * 3) / 16,
+    c.height / 3,
+    (c.width * 11) / 16,
+    c.height / 3,
+    steps
+  );
 }
