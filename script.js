@@ -5,7 +5,6 @@ let intervalID;
 
 generateButton.addEventListener("click", generateFractal);
 
-
 // Function to update the Generate button and selected fractal
 function updateGenerateButton(fractalName) {
   const generateButton = document.getElementById("generateButton");
@@ -264,7 +263,7 @@ function generateJuliaSet() {
         if (result == maxIterations) {
           pixel(x, y, "black");
         } else {
-         //  var color = getRandomColor();
+          //  var color = getRandomColor();
           pixel(x, y, "white");
         }
         im += imStep;
@@ -329,4 +328,91 @@ function generateDragonCurve() {
     c.height / 3,
     steps
   );
+}
+
+function generateKochSnowflake() {
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+
+  canvas.width = 700;
+  canvas.height = 700;
+
+  // The adjusted starting coordinates, centered around the origin
+  const startingPoints = {
+    p1: {
+      x: 0,
+      y: -225 - 25,
+    },
+    p2: {
+      x: 225,
+      y: 154.5 - 25,
+    },
+    p3: {
+      x: -225,
+      y: 154.5 - 25,
+    },
+  };
+  ctx.translate(0.5 * canvas.width, 0.5 * canvas.height);
+
+    const drawTriangle = () => {
+      const { p1, p2, p3 } = startingPoints;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(p3.x, p3.y);
+      ctx.closePath();
+      ctx.stroke();
+    };
+
+    // Call the drawTriangle function to print the 0th iteration
+
+  const koch = (a, b, limit = 5) => {
+    let [dx, dy] = [b.x - a.x, b.y - a.y];
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    let unit = dist / 3;
+    let angle = Math.atan2(dy, dx);
+
+    // This will be the triangular shape that makes the 'points' on the snowflake
+    let p1 = {
+      x: a.x + dx / 3,
+      y: a.y + dy / 3,
+    };
+    let p3 = {
+      x: b.x - dx / 3,
+      y: b.y - dy / 3,
+    };
+    let p2 = {
+      x: p1.x + Math.cos(angle - Math.PI / 3) * unit,
+      y: p1.y + Math.sin(angle - Math.PI / 3) * unit,
+    };
+
+    if (limit > 0) {
+      // Decrease limit each time it's called
+      setTimeout(() => {
+        koch(a, p1, limit - 1);
+        koch(p1, p2, limit - 1);
+        koch(p2, p3, limit - 1);
+        koch(p3, b, limit - 1);
+      }, 0); // Delay between each iteration (in milliseconds)
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(p3.x, p3.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+  };
+
+  // draw the shape using our predefined coordinates
+  koch(startingPoints.p1, startingPoints.p2);
+  koch(startingPoints.p2, startingPoints.p3);
+  koch(startingPoints.p3, startingPoints.p1);
+}
+// drawTriangle();
+// ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+function generateSierpinskiTriangle() {
+  
 }
