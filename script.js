@@ -1,12 +1,11 @@
-// Global variable to store the selected fractal name
 var isGenerating = false;
 let selectedFractal = "";
 let intervalID;
 
 generateButton.addEventListener("click", generateFractal);
 
-// Function to update the Generate button and selected fractal
 function updateGenerateButton(fractalName) {
+  // update the Generate button and selected fractal
   const generateButton = document.getElementById("generateButton");
   generateButton.innerText = `Generate ${fractalName}`;
   selectedFractal = fractalName;
@@ -16,7 +15,7 @@ function clearBoard() {
   clearInterval(intervalID);
   intervalID = null;
   isGenerating = false;
-  location.reload(); // Refresh the page
+  location.reload(); // refresh the page
 }
 
 var clearButton = document.getElementById("clearButton");
@@ -128,69 +127,6 @@ function generateMandelbrotSet() {
   }, 1000);
 }
 
-function generateBarnsleyFern() {
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-
-  // Clear the canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Set up the initial coordinates
-  let x = 0;
-  let y = 0;
-
-  // Function to plot a single point
-  function plotPoint() {
-    // Randomly select a transformation
-    const random = Math.random();
-    let newX, newY;
-
-    if (random < 0.01) {
-      // Transformation 1
-      newX = 0;
-      newY = 0.16 * y;
-    } else if (random < 0.86) {
-      // Transformation 2
-      newX = 0.85 * x + 0.04 * y;
-      newY = -0.04 * x + 0.85 * y + 1.6;
-    } else if (random < 0.93) {
-      // Transformation 3
-      newX = 0.2 * x - 0.26 * y;
-      newY = 0.23 * x + 0.22 * y + 1.6;
-    } else {
-      // Transformation 4
-      newX = -0.15 * x + 0.28 * y;
-      newY = 0.26 * x + 0.24 * y + 0.44;
-    }
-
-    // Update the current coordinates
-    x = newX;
-    y = newY;
-
-    // Map the coordinates to the canvas
-    const canvasX = Math.floor(canvas.width / 2 + x * 50);
-    const canvasY = Math.floor(canvas.height - y * 50);
-
-    // Draw a pixel at the mapped coordinates
-    ctx.fillRect(canvasX, canvasY, 1, 1);
-  }
-
-  ////////////////////////////////////////////////////
-  let i = 0;
-  function generateNextPoint() {
-    if (i < 100000) {
-      for (let j = 0; j < 50; j++) {
-        plotPoint();
-      }
-      i += 50;
-      requestAnimationFrame(generateNextPoint);
-    }
-  }
-
-  // Start generating the fractal
-  generateNextPoint();
-}
-
 function generateJuliaSet() {
   function Complex(re, im) {
     this.re = re;
@@ -264,7 +200,7 @@ function generateJuliaSet() {
           pixel(x, y, "black");
         } else {
           //  var color = getRandomColor();
-          pixel(x, y, "white");
+          pixel(x, y, "white"); // change with 'color' to see the Julia set in color
         }
         im += imStep;
       }
@@ -272,7 +208,7 @@ function generateJuliaSet() {
     }
   }
 
-  var iterations = [5, 10, 15, 25, 50, 75]; // 9 iterations
+  var iterations = [1, 5, 10, 15, 25, 50, 75, 100, 150]; ////////////// 9 iterations, can be changed here
   var c = new Complex(-0.8, 0.156);
   draw(700, 700, iterations, c);
   var i = 0;
@@ -285,48 +221,68 @@ function generateJuliaSet() {
   }, 1000);
 }
 
-function generateDragonCurve() {
-  if (isGenerating) return;
+function generateSierpinskiTriangle() {
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
 
-  var c = document.getElementById("canvas");
-  c.width = 1024;
-  c.height = 768;
-  var ctx = c.getContext("2d");
-  var i = 0;
-  var steps = 17;
-  var colorRate = 8;
+  canvas.width = 700;
+  canvas.height = 700;
 
-  function drawDragon(x1, y1, x2, y2, step) {
-    if (step--) {
-      var dx = x2 - x1,
-        dy = y2 - y1;
+  // The adjusted starting coordinates, centered around the origin
+  const startingPoints = {
+    p1: {
+      x: 0,
+      y: -225,
+    },
+    p2: {
+      x: 225,
+      y: 154.5,
+    },
+    p3: {
+      x: -225,
+      y: 154.5,
+    },
+  };
+  ctx.translate(0.5 * canvas.width, 0.5 * canvas.height);
 
-      var midX = x1 + (dx - dy) / 2,
-        midY = y1 + (dx + dy) / 2;
+  const drawTriangle = (p1, p2, p3) => {
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.closePath();
+    ctx.stroke();
+  };
 
-      drawDragon(midX, midY, x1, y1, step);
-      drawDragon(midX, midY, x2, y2, step);
+  const sierpinski = (p1, p2, p3, limit = 9) => {
+    ///////////////////// change the limit here
+    if (limit > 0) {
+      const p4 = {
+        x: (p1.x + p2.x) / 2,
+        y: (p1.y + p2.y) / 2,
+      };
+      const p5 = {
+        x: (p2.x + p3.x) / 2,
+        y: (p2.y + p3.y) / 2,
+      };
+      const p6 = {
+        x: (p3.x + p1.x) / 2,
+        y: (p3.y + p1.y) / 2,
+      };
 
-      var r = (i >> (colorRate - 3)) & 255;
-      var g = (i >> (colorRate + 0)) & 255;
-      var b = (i >> (colorRate - 1)) & 255;
-
-      setTimeout(function () {
-        ctx.fillStyle = "rgb(" + r + ", " + g + "," + b + ")";
-        ctx.fillRect(midX, midY, 1.5, 1.5);
-        i++;
-      }, 50); // Adjust the delay (in milliseconds) between iterations here
+      sierpinski(p1, p4, p6, limit - 1);
+      sierpinski(p4, p2, p5, limit - 1);
+      sierpinski(p6, p5, p3, limit - 1);
     } else {
-      isGenerating = false;
+      drawTriangle(p1, p2, p3);
     }
-  }
-  isGenerating = true;
-  drawDragon(
-    (c.width * 3) / 16,
-    c.height / 3,
-    (c.width * 11) / 16,
-    c.height / 3,
-    steps
+  };
+
+  sierpinski(
+    startingPoints.p1,
+    startingPoints.p2,
+    startingPoints.p3,
+    (limit = 7) //////////////////////////////////////////////////////////// change the limit here
   );
 }
 
@@ -353,26 +309,13 @@ function generateKochSnowflake() {
     },
   };
   ctx.translate(0.5 * canvas.width, 0.5 * canvas.height);
-
-    const drawTriangle = () => {
-      const { p1, p2, p3 } = startingPoints;
-      ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.lineTo(p2.x, p2.y);
-      ctx.lineTo(p3.x, p3.y);
-      ctx.closePath();
-      ctx.stroke();
-    };
-
-    // Call the drawTriangle function to print the 0th iteration
-
-  const koch = (a, b, limit = 5) => {
+  const koch = (a, b, limit = 6) => {
+    /////////////////////////////////// change the limit here
     let [dx, dy] = [b.x - a.x, b.y - a.y];
     let dist = Math.sqrt(dx * dx + dy * dy);
     let unit = dist / 3;
     let angle = Math.atan2(dy, dx);
 
-    // This will be the triangular shape that makes the 'points' on the snowflake
     let p1 = {
       x: a.x + dx / 3,
       y: a.y + dy / 3,
@@ -410,9 +353,111 @@ function generateKochSnowflake() {
   koch(startingPoints.p2, startingPoints.p3);
   koch(startingPoints.p3, startingPoints.p1);
 }
-// drawTriangle();
-// ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function generateSierpinskiTriangle() {
-  
+function generateDragonCurve() {
+  if (isGenerating) return;
+
+  var c = document.getElementById("canvas");
+  c.width = 1024;
+  c.height = 768;
+  var ctx = c.getContext("2d");
+  var i = 0;
+  var steps = 17;
+  var colorRate = 8;
+
+  function drawDragon(x1, y1, x2, y2, step) {
+    if (step--) {
+      var dx = x2 - x1,
+        dy = y2 - y1;
+
+      var midX = x1 + (dx - dy) / 2,
+        midY = y1 + (dx + dy) / 2;
+
+      drawDragon(midX, midY, x1, y1, step);
+      drawDragon(midX, midY, x2, y2, step);
+
+      var r = (i >> (colorRate - 3)) & 255;
+      var g = (i >> (colorRate + 0)) & 255;
+      var b = (i >> (colorRate - 1)) & 255;
+
+      setTimeout(function () {
+        ctx.fillStyle = "rgb(" + r + ", " + g + "," + b + ")";
+        ctx.fillRect(midX, midY, 1.5, 1.5);
+        i++;
+      }, 10); // Adjust the delay (in milliseconds) between iterations here
+    } else {
+      isGenerating = false;
+    }
+  }
+  isGenerating = true;
+  drawDragon(
+    (c.width * 3) / 16,
+    c.height / 3,
+    (c.width * 11) / 16,
+    c.height / 3,
+    steps
+  );
+}
+
+function generateBarnsleyFern() {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Set up the initial coordinates
+  let x = 0;
+  let y = 0;
+
+  // Function to plot a single point
+  function plotPoint() {
+    // Randomly select a transformation
+    const random = Math.random();
+    let newX, newY;
+
+    if (random < 0.01) {
+      // Transformation 1
+      newX = 0;
+      newY = 0.16 * y;
+    } else if (random < 0.86) {
+      // Transformation 2
+      newX = 0.85 * x + 0.04 * y;
+      newY = -0.04 * x + 0.85 * y + 1.6;
+    } else if (random < 0.93) {
+      // Transformation 3
+      newX = 0.2 * x - 0.26 * y;
+      newY = 0.23 * x + 0.22 * y + 1.6;
+    } else {
+      // Transformation 4
+      newX = -0.15 * x + 0.28 * y;
+      newY = 0.26 * x + 0.24 * y + 0.44;
+    }
+
+    // Update the current coordinates
+    x = newX;
+    y = newY;
+
+    // Map the coordinates to the canvas
+    const canvasX = Math.floor(canvas.width / 2 + x * 50);
+    const canvasY = Math.floor(canvas.height - y * 50);
+
+    // Draw a pixel at the mapped coordinates
+    ctx.fillRect(canvasX, canvasY, 1, 1);
+  }
+
+  ////////////////////////////////////////////////////
+  let i = 0;
+  function generateNextPoint() {
+    if (i < 100000) {
+      for (let j = 0; j < 50; j++) {
+        plotPoint();
+      }
+      i += 50;
+      requestAnimationFrame(generateNextPoint);
+    }
+  }
+
+  // Start generating the fractal
+  generateNextPoint();
 }
