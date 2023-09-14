@@ -330,13 +330,12 @@ function generateKochSnowflake() {
     };
 
     if (limit > 0) {
-      // Decrease limit each time it's called
       setTimeout(() => {
         koch(a, p1, limit - 1);
         koch(p1, p2, limit - 1);
         koch(p2, p3, limit - 1);
         koch(p3, b, limit - 1);
-      }, 0); // Delay between each iteration (in milliseconds)
+      }, 0); // delay between each iteration (in milliseconds)
     } else {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
@@ -384,7 +383,7 @@ function generateDragonCurve() {
         ctx.fillStyle = "rgb(" + r + ", " + g + "," + b + ")";
         ctx.fillRect(midX, midY, 1.5, 1.5);
         i++;
-      }, 10); // Adjust the delay (in milliseconds) between iterations here
+      }, 10); //////// adjust the delay between iterations here
     } else {
       isGenerating = false;
     }
@@ -402,54 +401,43 @@ function generateDragonCurve() {
 function generateBarnsleyFern() {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-
-  // Clear the canvas
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Set up the initial coordinates
   let x = 0;
   let y = 0;
 
-  // Function to plot a single point
   function plotPoint() {
-    // Randomly select a transformation
-    const random = Math.random();
+    const random = Math.random(); // generate a num 
     let newX, newY;
 
     if (random < 0.01) {
-      // Transformation 1
       newX = 0;
       newY = 0.16 * y;
     } else if (random < 0.86) {
-      // Transformation 2
       newX = 0.85 * x + 0.04 * y;
       newY = -0.04 * x + 0.85 * y + 1.6;
     } else if (random < 0.93) {
-      // Transformation 3
       newX = 0.2 * x - 0.26 * y;
       newY = 0.23 * x + 0.22 * y + 1.6;
     } else {
-      // Transformation 4
       newX = -0.15 * x + 0.28 * y;
       newY = 0.26 * x + 0.24 * y + 0.44;
     }
 
-    // Update the current coordinates
     x = newX;
     y = newY;
 
-    // Map the coordinates to the canvas
     const canvasX = Math.floor(canvas.width / 2 + x * 50);
     const canvasY = Math.floor(canvas.height - y * 50);
 
-    // Draw a pixel at the mapped coordinates
     ctx.fillRect(canvasX, canvasY, 1, 1);
   }
 
   ////////////////////////////////////////////////////
   let i = 0;
   function generateNextPoint() {
-    if (i < 100000) {
+    if (i < 100000) { // limit the amount here 
       for (let j = 0; j < 50; j++) {
         plotPoint();
       }
@@ -457,7 +445,5 @@ function generateBarnsleyFern() {
       requestAnimationFrame(generateNextPoint);
     }
   }
-
-  // Start generating the fractal
   generateNextPoint();
 }
